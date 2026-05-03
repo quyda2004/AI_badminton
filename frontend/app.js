@@ -79,11 +79,14 @@ document.getElementById('form-register').addEventListener('submit', async e => {
 })
 
 function afterLogin(user) {
-  document.getElementById('user-info').textContent = `👤 ${user.full_name} (${user.role})`
+  const chip = document.getElementById('user-info')
+  chip.textContent = `${user.full_name}`
+  chip.style.display = 'flex'
   document.getElementById('nav-auth').style.display = 'none'
   document.getElementById('btn-logout').style.display = 'inline-block'
   document.getElementById('nav-courts').style.display   = 'inline-block'
   document.getElementById('nav-bookings').style.display = 'inline-block'
+  document.getElementById('nav-ai').style.display       = 'inline-block'
   if (user.role === 'admin') document.getElementById('nav-admin').style.display = 'inline-block'
   showSection('courts')
   loadCourts()
@@ -97,22 +100,54 @@ document.getElementById('btn-logout').addEventListener('click', () => {
 // ── COURTS ─────────────────────────────────────────
 let selectedCourtId = null
 let selectedSlot    = null
+let allCourts       = []
 
-async function loadCourts() {
-  const courts = await api('GET', '/courts')
+const COURT_IMGS = [
+  'images/court1.jpg',
+  'images/court2.jpg',
+  'images/court3.jpg',
+  'images/court4.jpg',
+  'images/court5.jpg',
+]
+
+function renderCourts(courts) {
   const grid = document.getElementById('courts-grid')
-  grid.innerHTML = courts.map(c => `
+  if (!courts.length) {
+    grid.innerHTML = '<div class="loading">Không có sân nào</div>'
+    return
+  }
+  grid.innerHTML = courts.map((c, i) => `
     <div class="court-card">
-      <h4>${c.name}</h4>
-      <div class="type">${c.type}</div>
-      <div class="price">${c.price_per_hour.toLocaleString('vi-VN')}đ / giờ</div>
-      <span class="badge badge-${c.status}">${c.status}</span>
-      <br><br>
-      <button class="btn btn-primary btn-sm" onclick="openBookingModal('${c.id}', '${c.name}', ${c.price_per_hour})">
-        Đặt sân
-      </button>
+      <div class="court-img">
+        <img src="${COURT_IMGS[i % COURT_IMGS.length]}" alt="${c.name}" loading="lazy" />
+        <div class="court-img-grad"></div>
+        <span class="court-type-tag type-tag-${c.type}">${c.type}</span>
+      </div>
+      <div class="court-body">
+        <h4>${c.name}</h4>
+        <div class="court-price">${c.price_per_hour.toLocaleString('vi-VN')}đ <span>/ giờ</span></div>
+        ${c.description ? `<div class="court-desc">${c.description}</div>` : ''}
+        <div class="court-footer">
+          <span class="badge badge-${c.status}">${c.status === 'active' ? 'Đang mở' : 'Tạm đóng'}</span>
+          ${c.status === 'active' ? `<button class="btn btn-primary btn-sm" onclick="openBookingModal('${c.id}', '${c.name}', ${c.price_per_hour})">Đặt sân</button>` : ''}
+        </div>
+      </div>
     </div>
   `).join('')
+}
+
+async function loadCourts() {
+  allCourts = await api('GET', '/courts')
+  renderCourts(allCourts)
+
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'))
+      btn.classList.add('active')
+      const type = btn.dataset.type
+      renderCourts(type === 'all' ? allCourts : allCourts.filter(c => c.type === type))
+    })
+  })
 }
 
 // ── BOOKING MODAL ──────────────────────────────────
@@ -137,7 +172,7 @@ document.getElementById('booking-date').addEventListener('change', async e => {
         ${slots.map(s => `
           <div class="slot ${s.available ? 'available' : 'unavailable'}"
                onclick="${s.available ? `selectSlot('${date}', '${s.start}', '${s.end}', this)` : ''}">
-            ${s.start}<br>${s.end}
+            ${s.start} - ${s.end}
           </div>
         `).join('')}
       </div>
@@ -150,14 +185,15 @@ document.getElementById('booking-date').addEventListener('change', async e => {
 function selectSlot(date, start, end, el) {
   document.querySelectorAll('.slot').forEach(s => s.classList.remove('selected'))
   el.classList.add('selected')
-  selectedSlot = { date, start, end }
+  selectedSlot = {
+    startTime: `${date}T${start}:00+07:00`,
+    endTime:   `${date}T${end}:00+07:00`,
+  }
 }
 
 document.getElementById('btn-confirm-booking').addEventListener('click', async () => {
   if (!selectedSlot) return showAlert('alert-booking-modal', 'Chọn slot giờ trước nhé!')
-  const { date, start, end } = selectedSlot
-  const startTime = `${date}T${start}:00+00:00`
-  const endTime   = `${date}T${end}:00+00:00`
+  const { startTime, endTime } = selectedSlot
   try {
     await api('POST', '/bookings', { court_id: selectedCourtId, start_time: startTime, end_time: endTime })
     closeModal('modal-booking')
@@ -180,7 +216,7 @@ async function loadBookings() {
     }
     document.getElementById('bookings-table-body').innerHTML = bookings.map(b => `
       <tr>
-        <td>${b.court_id}</td>
+        <td>${b.court_name}</td>
         <td>${fmtDateTime(b.start_time)}</td>
         <td>${fmtDateTime(b.end_time)}</td>
         <td><span class="badge badge-${b.status}">${b.status}</span></td>
@@ -251,7 +287,7 @@ async function loadAdmin() {
       <tr>
         <td>${b.id.substring(0,8)}...</td>
         <td>${b.user_id}</td>
-        <td>${b.court_id}</td>
+        <td>${b.court_name}</td>
         <td>${fmtDateTime(b.start_time)}</td>
         <td><span class="badge badge-${b.status}">${b.status}</span></td>
         <td>${b.total_price.toLocaleString('vi-VN')}đ</td>
@@ -283,6 +319,46 @@ function closeModal(id) {
 
   document.getElementById('nav-courts').addEventListener('click', () => { showSection('courts'); loadCourts() })
   document.getElementById('nav-bookings').addEventListener('click', () => { showSection('bookings'); loadBookings() })
+  document.getElementById('nav-ai').addEventListener('click', () => showSection('ai'))
   document.getElementById('nav-admin')?.addEventListener('click', () => { showSection('admin'); loadAdmin() })
   document.getElementById('nav-auth').addEventListener('click', () => showSection('auth'))
 })()
+
+// ── AI CHAT ────────────────────────────────────────
+let chatSessionId = null
+
+function appendBubble(role, text) {
+  const box = document.getElementById('chat-messages')
+  const div = document.createElement('div')
+  div.className = `chat-bubble ${role}`
+  div.textContent = text
+  box.appendChild(div)
+  box.scrollTop = box.scrollHeight
+  return div
+}
+
+document.getElementById('btn-chat-send').addEventListener('click', sendChat)
+document.getElementById('chat-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') sendChat()
+})
+
+async function sendChat() {
+  const input = document.getElementById('chat-input')
+  const message = input.value.trim()
+  if (!message) return
+
+  input.value = ''
+  appendBubble('user', message)
+
+  const typing = appendBubble('typing', 'AI đang trả lời...')
+
+  try {
+    const res = await api('POST', '/ai/chat', { message, session_id: chatSessionId })
+    chatSessionId = res.session_id
+    typing.remove()
+    appendBubble('model', res.reply)
+  } catch (err) {
+    typing.remove()
+    appendBubble('model', 'Lỗi: ' + (err.detail || 'Không kết nối được AI'))
+  }
+}

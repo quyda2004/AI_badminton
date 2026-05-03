@@ -17,6 +17,7 @@ class BookingResponse(BaseModel):
     id: str
     user_id: str
     court_id: str
+    court_name: str
     start_time: datetime
     end_time: datetime
     status: str

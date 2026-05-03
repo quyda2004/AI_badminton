@@ -2,8 +2,8 @@ import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from sqlalchemy import create_engine, inspect
 
-from models import Base  # __init__.py tự import User, Court, Booking, Payment → Base.metadata biết hết
-from config import DATABASE_URL, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB
+from .models import Base  # __init__.py tự import User, Court, Booking, Payment → Base.metadata biết hết
+from .config import DATABASE_URL, POSTGRES_HOST, POSTGRES_PORT, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB
 
 
 def create_db_if_not_exists():

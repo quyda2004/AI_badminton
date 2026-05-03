@@ -3,165 +3,323 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Badminton AI</title>
+  <title>BadmintonPro — Đặt sân thông minh</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
 <!-- ── NAV ── -->
-<nav>
-  <div class="logo">🏸 Badminton AI</div>
+<nav id="main-nav">
+  <div class="nav-logo">
+    <div class="logo-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path d="M5 19L19 5" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="19" cy="5" r="4" fill="none" stroke="#f59e0b" stroke-width="2"/>
+        <line x1="19" y1="3" x2="19" y2="7" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="17" y1="5" x2="21" y2="5" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <span>BadmintonPro</span>
+  </div>
+
   <div class="nav-links">
     <button id="nav-auth">Đăng nhập</button>
     <button id="nav-courts"   style="display:none">Sân</button>
-    <button id="nav-bookings" style="display:none">Booking của tôi</button>
+    <button id="nav-bookings" style="display:none">Booking</button>
+    <button id="nav-ai"       style="display:none">AI Chat</button>
     <button id="nav-admin"    style="display:none">Admin</button>
   </div>
-  <div style="display:flex;align-items:center;gap:12px">
-    <span id="user-info"></span>
-    <button id="btn-logout" style="display:none">Đăng xuất</button>
+
+  <div class="nav-right">
+    <div id="user-info" class="user-chip" style="display:none"></div>
+    <button id="btn-logout" class="btn btn-outline-sm" style="display:none">Đăng xuất</button>
   </div>
 </nav>
 
 <div class="container">
 
-  <!-- ── AUTH ── -->
+  <!-- ══════════════════════════════
+       AUTH / HERO
+  ══════════════════════════════ -->
   <div id="section-auth" class="section">
-    <div class="card" style="max-width:420px;margin:0 auto">
-      <h2>Chào mừng 🏸</h2>
-      <div class="tabs">
-        <button class="tab-btn active" data-tab="login"    onclick="showTab('login')">Đăng nhập</button>
-        <button class="tab-btn"        data-tab="register" onclick="showTab('register')">Đăng ký</button>
+    <div class="hero">
+      <div class="hero-left">
+        <div class="hero-badge">
+          <span class="badge-dot"></span>
+          Powered by Gemini AI
+        </div>
+        <h1 class="hero-title">
+          Đặt Sân<br>
+          <span class="gradient-text">Cầu Lông</span><br>
+          Thông Minh
+        </h1>
+        <p class="hero-desc">Hệ thống đặt sân hiện đại với trợ lý AI — chat một câu là xong.</p>
+
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <strong>10+</strong><span>Sân hoạt động</span>
+          </div>
+          <div class="hero-sep"></div>
+          <div class="hero-stat">
+            <strong>24/7</strong><span>Hỗ trợ AI</span>
+          </div>
+          <div class="hero-sep"></div>
+          <div class="hero-stat">
+            <strong>100%</strong><span>Online</span>
+          </div>
+        </div>
+
+        <div class="hero-features">
+          <div class="hero-feat">
+            <div class="feat-icon">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            </div>
+            <span>Đặt sân tức thì</span>
+          </div>
+          <div class="hero-feat">
+            <div class="feat-icon">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <span>Xác nhận ngay</span>
+          </div>
+          <div class="hero-feat">
+            <div class="feat-icon">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            </div>
+            <span>Đổi lịch linh hoạt</span>
+          </div>
+        </div>
       </div>
-      <div id="alert-auth" class="alert"></div>
 
-      <!-- Login -->
-      <form id="form-login">
-        <div class="form-group">
-          <label>Email</label>
-          <input id="login-email" type="email" placeholder="email@gmail.com" required />
-        </div>
-        <div class="form-group">
-          <label>Mật khẩu</label>
-          <input id="login-password" type="password" placeholder="••••••" required />
-        </div>
-        <button type="submit" class="btn btn-primary" style="width:100%">Đăng nhập</button>
-        <p style="margin-top:12px;font-size:13px;color:#888;text-align:center">
-          Test: <b>nguyen.vana@gmail.com</b> / <b>123</b><br>
-          Admin: <b>admin@badminton.com</b> / <b>admin</b>
-        </p>
-      </form>
+      <div class="hero-right">
+        <div class="auth-card">
+          <div class="auth-card-header">
+            <div class="auth-logo-mini">BP</div>
+            <p>Chào mừng trở lại</p>
+          </div>
+          <div class="tabs">
+            <button class="tab-btn active" data-tab="login"    onclick="showTab('login')">Đăng nhập</button>
+            <button class="tab-btn"        data-tab="register" onclick="showTab('register')">Đăng ký</button>
+          </div>
+          <div id="alert-auth" class="alert"></div>
 
-      <!-- Register -->
-      <form id="form-register" style="display:none">
-        <div class="form-group">
-          <label>Họ tên</label>
-          <input id="reg-name" type="text" placeholder="Nguyễn Văn A" required />
+          <form id="form-login">
+            <div class="form-group">
+              <label>Email</label>
+              <input id="login-email" type="email" placeholder="email@gmail.com" required />
+            </div>
+            <div class="form-group">
+              <label>Mật khẩu</label>
+              <input id="login-password" type="password" placeholder="••••••" required />
+            </div>
+            <button type="submit" class="btn btn-primary btn-full mt-8">Đăng nhập</button>
+            <p class="demo-hint">
+              Test: <b>nguyen.vana@gmail.com</b> / <b>123</b><br>
+              Admin: <b>admin@badminton.com</b> / <b>admin</b>
+            </p>
+          </form>
+
+          <form id="form-register" style="display:none">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Họ tên</label>
+                <input id="reg-name" type="text" placeholder="Nguyễn Văn A" required />
+              </div>
+              <div class="form-group">
+                <label>Số điện thoại</label>
+                <input id="reg-phone" type="text" placeholder="0901234567" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input id="reg-email" type="email" placeholder="email@gmail.com" required />
+            </div>
+            <div class="form-group">
+              <label>Mật khẩu</label>
+              <input id="reg-password" type="password" placeholder="••••••" required />
+            </div>
+            <button type="submit" class="btn btn-primary btn-full mt-8">Tạo tài khoản</button>
+          </form>
         </div>
-        <div class="form-group">
-          <label>Email</label>
-          <input id="reg-email" type="email" placeholder="email@gmail.com" required />
-        </div>
-        <div class="form-group">
-          <label>Số điện thoại</label>
-          <input id="reg-phone" type="text" placeholder="0901234567" />
-        </div>
-        <div class="form-group">
-          <label>Mật khẩu</label>
-          <input id="reg-password" type="password" placeholder="••••••" required />
-        </div>
-        <button type="submit" class="btn btn-primary" style="width:100%">Đăng ký</button>
-      </form>
+      </div>
     </div>
   </div>
 
-  <!-- ── COURTS ── -->
+  <!-- ══════════════════════════════
+       COURTS
+  ══════════════════════════════ -->
   <div id="section-courts" class="section">
-    <div class="card">
-      <h2>Danh sách sân</h2>
-      <div id="courts-grid" class="courts-grid">
-        <div class="loading">Đang tải...</div>
+    <div class="section-hero courts-hero">
+      <div class="section-hero-content">
+        <span class="section-tag">Hệ thống sân</span>
+        <h2>Chọn sân phù hợp với bạn</h2>
+        <p>10 sân tiêu chuẩn · VIP · Premium — đặt lịch nhanh trong vài giây</p>
       </div>
+    </div>
+
+    <div class="court-filter-bar">
+      <button class="filter-btn active" data-type="all">Tất cả</button>
+      <button class="filter-btn" data-type="standard">Standard</button>
+      <button class="filter-btn" data-type="vip">VIP</button>
+      <button class="filter-btn" data-type="premium">Premium</button>
+    </div>
+
+    <div id="courts-grid" class="courts-grid">
+      <div class="loading">Đang tải...</div>
     </div>
   </div>
 
-  <!-- ── MY BOOKINGS ── -->
+  <!-- ══════════════════════════════
+       MY BOOKINGS
+  ══════════════════════════════ -->
   <div id="section-bookings" class="section">
-    <div class="card">
-      <h2>Booking của tôi</h2>
+    <div class="page-header">
+      <div>
+        <h2>Booking của tôi</h2>
+        <p class="page-sub">Quản lý lịch đặt sân của bạn</p>
+      </div>
+    </div>
+    <div class="content-wrap">
       <div id="alert-bookings" class="alert"></div>
-      <table>
-        <thead>
-          <tr>
-            <th>Sân</th>
-            <th>Bắt đầu</th>
-            <th>Kết thúc</th>
-            <th>Trạng thái</th>
-            <th>Tổng tiền</th>
-            <th>Thao tác</th>
-          </tr>
-        </thead>
-        <tbody id="bookings-table-body">
-          <tr><td colspan="6" class="loading">Đang tải...</td></tr>
-        </tbody>
-      </table>
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>Sân</th><th>Bắt đầu</th><th>Kết thúc</th>
+              <th>Trạng thái</th><th>Tổng tiền</th><th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody id="bookings-table-body">
+            <tr><td colspan="6" class="loading">Đang tải...</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
-  <!-- ── ADMIN ── -->
-  <div id="section-admin" class="section">
-    <div class="card">
-      <h2>Admin Dashboard</h2>
-      <div id="alert-admin" class="alert"></div>
-      <div class="stats-grid" style="margin-bottom:28px">
-        <div class="stat-card">
-          <div class="value" id="stat-bookings">—</div>
-          <div class="label">Tổng booking</div>
+  <!-- ══════════════════════════════
+       AI CHAT
+  ══════════════════════════════ -->
+  <div id="section-ai" class="section">
+    <div class="page-header">
+      <div>
+        <h2>AI Chat</h2>
+        <p class="page-sub">Đặt sân, hủy sân — chỉ cần một câu chat</p>
+      </div>
+    </div>
+    <div class="content-wrap">
+      <div class="chat-card">
+        <div class="chat-topbar">
+          <div class="ai-avatar">AI</div>
+          <div>
+            <strong>Trợ lý BadmintonPro</strong>
+            <span class="online-dot">Trực tuyến</span>
+          </div>
         </div>
-        <div class="stat-card">
-          <div class="value" id="stat-bookings-today">—</div>
-          <div class="label">Booking hôm nay</div>
-        </div>
-        <div class="stat-card">
-          <div class="value" id="stat-revenue">—</div>
-          <div class="label">Doanh thu</div>
-        </div>
-        <div class="stat-card">
-          <div class="value" id="stat-courts">—</div>
-          <div class="label">Sân đang hoạt động</div>
-        </div>
-        <div class="stat-card">
-          <div class="value" id="stat-users">—</div>
-          <div class="label">Tổng user</div>
+        <div id="chat-messages"></div>
+        <div class="chat-input-row">
+          <input id="chat-input" type="text" placeholder="Vd: Đặt sân 1 ngày mai lúc 8h sáng..." autocomplete="off" />
+          <button class="btn btn-primary" id="btn-chat-send">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Gửi
+          </button>
         </div>
       </div>
-      <h3>Tất cả booking</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>User</th>
-            <th>Sân</th>
-            <th>Thời gian</th>
-            <th>Trạng thái</th>
-            <th>Tổng tiền</th>
-          </tr>
-        </thead>
-        <tbody id="admin-table-body">
-          <tr><td colspan="6" class="loading">Chưa tải</td></tr>
-        </tbody>
-      </table>
     </div>
   </div>
 
-</div>
+  <!-- ══════════════════════════════
+       ADMIN
+  ══════════════════════════════ -->
+  <div id="section-admin" class="section">
+    <div class="page-header">
+      <div>
+        <h2>Admin Dashboard</h2>
+        <p class="page-sub">Tổng quan hoạt động hệ thống</p>
+      </div>
+    </div>
+    <div class="content-wrap">
+      <div id="alert-admin" class="alert" style="margin-bottom:24px"></div>
 
-<!-- ── MODAL: ĐẶT SÂN ── -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon-wrap blue"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg></div>
+          <div class="stat-body">
+            <div class="stat-num" id="stat-bookings">—</div>
+            <div class="stat-lbl">Tổng booking</div>
+          </div>
+          <div class="stat-bg blue"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap green"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+          <div class="stat-body">
+            <div class="stat-num" id="stat-bookings-today">—</div>
+            <div class="stat-lbl">Booking hôm nay</div>
+          </div>
+          <div class="stat-bg green"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap amber"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
+          <div class="stat-body">
+            <div class="stat-num" id="stat-revenue">—</div>
+            <div class="stat-lbl">Doanh thu</div>
+          </div>
+          <div class="stat-bg amber"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap purple"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg></div>
+          <div class="stat-body">
+            <div class="stat-num" id="stat-courts">—</div>
+            <div class="stat-lbl">Sân hoạt động</div>
+          </div>
+          <div class="stat-bg purple"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon-wrap rose"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div>
+          <div class="stat-body">
+            <div class="stat-num" id="stat-users">—</div>
+            <div class="stat-lbl">Tổng user</div>
+          </div>
+          <div class="stat-bg rose"></div>
+        </div>
+      </div>
+
+      <div class="table-card" style="margin-top:24px">
+        <div class="table-card-header">
+          <h3>Tất cả booking</h3>
+          <span class="table-badge">Live</span>
+        </div>
+        <table>
+          <thead>
+            <tr><th>ID</th><th>User</th><th>Sân</th><th>Thời gian</th><th>Trạng thái</th><th>Tổng tiền</th></tr>
+          </thead>
+          <tbody id="admin-table-body">
+            <tr><td colspan="6" class="loading">Chưa tải</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<!-- ══════════════════════════════
+     MODAL: ĐẶT SÂN
+══════════════════════════════ -->
 <div id="modal-booking" class="modal-overlay">
   <div class="modal">
-    <h3>Đặt sân</h3>
-    <p id="modal-court-name" style="font-weight:600;margin-bottom:4px"></p>
-    <p id="modal-court-price" style="color:#1a73e8;margin-bottom:16px;font-size:14px"></p>
+    <div class="modal-head">
+      <div>
+        <h3 id="modal-court-name">Đặt sân</h3>
+        <p id="modal-court-price" class="modal-price"></p>
+      </div>
+      <button class="btn-close" onclick="closeModal('modal-booking')">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
     <div id="alert-booking-modal" class="alert"></div>
     <div class="form-group">
       <label>Chọn ngày</label>
@@ -169,30 +327,39 @@
     </div>
     <div class="form-group">
       <label>Chọn slot giờ</label>
-      <div id="slots-container"><div class="loading">Chọn ngày để xem slot trống</div></div>
+      <div id="slots-container"><div class="slot-placeholder">Chọn ngày để xem slot trống</div></div>
     </div>
-    <div class="modal-footer">
-      <button class="btn" onclick="closeModal('modal-booking')">Huỷ</button>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modal-booking')">Huỷ</button>
       <button class="btn btn-primary" id="btn-confirm-booking">Xác nhận đặt</button>
     </div>
   </div>
 </div>
 
-<!-- ── MODAL: ĐỔI LỊCH ── -->
+<!-- ══════════════════════════════
+     MODAL: ĐỔI LỊCH
+══════════════════════════════ -->
 <div id="modal-reschedule" class="modal-overlay">
   <div class="modal">
-    <h3>Đổi lịch booking</h3>
+    <div class="modal-head">
+      <div><h3>Đổi lịch booking</h3></div>
+      <button class="btn-close" onclick="closeModal('modal-reschedule')">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
     <div id="alert-reschedule" class="alert"></div>
-    <div class="form-group">
-      <label>Giờ bắt đầu mới</label>
-      <input id="reschedule-start" type="datetime-local" />
+    <div class="form-row">
+      <div class="form-group">
+        <label>Giờ bắt đầu mới</label>
+        <input id="reschedule-start" type="datetime-local" />
+      </div>
+      <div class="form-group">
+        <label>Giờ kết thúc mới</label>
+        <input id="reschedule-end" type="datetime-local" />
+      </div>
     </div>
-    <div class="form-group">
-      <label>Giờ kết thúc mới</label>
-      <input id="reschedule-end" type="datetime-local" />
-    </div>
-    <div class="modal-footer">
-      <button class="btn" onclick="closeModal('modal-reschedule')">Huỷ</button>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modal-reschedule')">Huỷ</button>
       <button class="btn btn-primary" id="btn-confirm-reschedule">Xác nhận đổi</button>
     </div>
   </div>

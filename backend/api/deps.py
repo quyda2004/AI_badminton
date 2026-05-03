@@ -4,9 +4,9 @@ from sqlalchemy.orm import Session
 from jose import JWTError
 from typing import Optional
 
-from config import DATABASE_URL
-from models import User
-from security import decode_access_token
+from ..config import DATABASE_URL
+from ..models import User
+from ..security import decode_access_token
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 

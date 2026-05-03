@@ -4,16 +4,17 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
-from api.deps import get_db, get_current_user
-from models import User, Court, Booking
-from schemas.booking import BookingCreate, RescheduleRequest, BookingResponse
+from .deps import get_db, get_current_user
+from ..models import User, Court, Booking
+from ..schemas.booking import BookingCreate, RescheduleRequest, BookingResponse
 
 router = APIRouter(prefix="/bookings", tags=["bookings"])
 
 
-def _to_response(b: Booking) -> BookingResponse:
+def _to_response(b: Booking, court_name: str = "") -> BookingResponse:
     return BookingResponse(
         id=b.id, user_id=b.user_id, court_id=b.court_id,
+        court_name=court_name,
         start_time=b.start_time, end_time=b.end_time,
         status=b.status, total_price=float(b.total_price),
         created_at=b.created_at,
@@ -22,10 +23,13 @@ def _to_response(b: Booking) -> BookingResponse:
 
 @router.get("", response_model=list[BookingResponse])
 def list_bookings(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    bookings = db.execute(
-        select(Booking).where(Booking.user_id == user.id).order_by(Booking.start_time.desc())
-    ).scalars().all()
-    return [_to_response(b) for b in bookings]
+    rows = db.execute(
+        select(Booking, Court)
+        .join(Court, Booking.court_id == Court.id)
+        .where(Booking.user_id == user.id)
+        .order_by(Booking.start_time.desc())
+    ).all()
+    return [_to_response(b, c.name) for b, c in rows]
 
 
 @router.post("", response_model=BookingResponse, status_code=201)
@@ -55,28 +59,37 @@ def create_booking(req: BookingCreate, db: Session = Depends(get_db), user: User
     db.add(booking)
     db.commit()
     db.refresh(booking)
-    return _to_response(booking)
+    return _to_response(booking, court.name)
 
 
 @router.get("/{booking_id}", response_model=BookingResponse)
 def get_booking(booking_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    booking = db.get(Booking, booking_id)
-    if not booking or booking.user_id != user.id:
+    row = db.execute(
+        select(Booking, Court)
+        .join(Court, Booking.court_id == Court.id)
+        .where(Booking.id == booking_id, Booking.user_id == user.id)
+    ).first()
+    if not row:
         raise HTTPException(status_code=404, detail="Booking không tồn tại")
-    return _to_response(booking)
+    return _to_response(row[0], row[1].name)
 
 
 @router.put("/{booking_id}/cancel", response_model=BookingResponse)
 def cancel_booking(booking_id: str, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    booking = db.get(Booking, booking_id)
-    if not booking or booking.user_id != user.id:
+    row = db.execute(
+        select(Booking, Court)
+        .join(Court, Booking.court_id == Court.id)
+        .where(Booking.id == booking_id, Booking.user_id == user.id)
+    ).first()
+    if not row:
         raise HTTPException(status_code=404, detail="Booking không tồn tại")
+    booking, court = row
     if booking.status == "cancelled":
         raise HTTPException(status_code=400, detail="Booking đã bị hủy rồi")
     booking.status = "cancelled"
     db.commit()
     db.refresh(booking)
-    return _to_response(booking)
+    return _to_response(booking, court.name)
 
 
 @router.put("/{booking_id}/reschedule", response_model=BookingResponse)
@@ -84,11 +97,14 @@ def reschedule_booking(
     booking_id: str, req: RescheduleRequest,
     db: Session = Depends(get_db), user: User = Depends(get_current_user),
 ):
-    booking = db.get(Booking, booking_id)
-    if not booking or booking.user_id != user.id:
+    row = db.execute(
+        select(Booking, Court)
+        .join(Court, Booking.court_id == Court.id)
+        .where(Booking.id == booking_id, Booking.user_id == user.id)
+    ).first()
+    if not row:
         raise HTTPException(status_code=404, detail="Booking không tồn tại")
-
-    court = db.get(Court, booking.court_id)
+    booking, court = row
     hours = (req.new_end_time - req.new_start_time).total_seconds() / 3600
 
     booking.status = "cancelled"
@@ -104,4 +120,4 @@ def reschedule_booking(
         db.rollback()
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Khung giờ mới đã bị đặt")
     db.refresh(booking)
-    return _to_response(booking)
+    return _to_response(booking, court.name)

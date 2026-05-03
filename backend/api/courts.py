@@ -4,14 +4,15 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
-from api.deps import get_db, get_current_user, get_admin_user
-from models import User, Court, Booking
-from schemas.court import CourtCreate, CourtResponse, TimeSlot
+from .deps import get_db, get_current_user, get_admin_user
+from ..models import User, Court, Booking
+from ..schemas.court import CourtCreate, CourtResponse, TimeSlot
 
 router = APIRouter(prefix="/courts", tags=["courts"])
 
 OPEN_HOUR  = 6
 CLOSE_HOUR = 22
+VN_TZ = timezone(timedelta(hours=7))
 
 
 @router.get("", response_model=list[CourtResponse])
@@ -37,7 +38,7 @@ def get_availability(court_id: str, date: date, db: Session = Depends(get_db)):
 
     slots = []
     for hour in range(OPEN_HOUR, CLOSE_HOUR):
-        start_dt = datetime.combine(date, time(hour, 0), tzinfo=timezone.utc)
+        start_dt = datetime.combine(date, time(hour, 0), tzinfo=VN_TZ)
         end_dt   = start_dt + timedelta(hours=1)
 
         conflict = db.execute(
