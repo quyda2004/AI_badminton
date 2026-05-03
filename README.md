@@ -12,6 +12,22 @@
 
 ---
 
+## Screenshots
+
+### Danh sách sân
+![Courts](docs/2.png)
+
+### Quản lý booking
+![Booking](docs/1.png)
+
+### AI Chat — Đặt sân bằng hội thoại
+![AI Chat](docs/3.png)
+
+### Admin Dashboard
+![Admin](docs/4.png)
+
+---
+
 ## Services
 
 | Service | Port | Công nghệ | Trách nhiệm |
