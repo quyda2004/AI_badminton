@@ -58,3 +58,29 @@ logs/
 # Database
 *.db
 *.sqlite3
+
+# Docker
+docker-compose.override.yml
+
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.pdf
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Node (nếu sau này thêm frontend tooling)
+node_modules/
+npm-debug.log*
+
+# Coverage
+.coverage
+htmlcov/

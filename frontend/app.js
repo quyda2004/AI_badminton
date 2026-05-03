@@ -1,4 +1,9 @@
-const API = 'http://localhost:8000'
+// DEV = true  → gọi thẳng localhost (không cần nginx)
+// DEV = false → dùng relative URL qua nginx (docker/production)
+const DEV = false
+
+const API_BACKEND = DEV ? 'http://localhost:8000' : '/api'
+const API_AI      = DEV ? 'http://localhost:8001' : ''
 
 // ── TOKEN ──────────────────────────────────────────
 const getToken = () => localStorage.getItem('token')
@@ -12,7 +17,9 @@ async function api(method, path, body = null) {
   const token = getToken()
   if (token) headers['Authorization'] = `Bearer ${token}`
 
-  const res = await fetch(`${API}${path}`, {
+  const base = path.startsWith('/ai/') ? API_AI : API_BACKEND
+
+  const res = await fetch(`${base}${path}`, {
     method,
     headers,
     body: body ? JSON.stringify(body) : null,

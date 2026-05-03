@@ -2,7 +2,6 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError
 
 from .deps import get_db, get_current_user
 from ..models import User, Court, Booking
@@ -105,19 +104,26 @@ def reschedule_booking(
     if not row:
         raise HTTPException(status_code=404, detail="Booking không tồn tại")
     booking, court = row
+
+    if booking.status == "cancelled":
+        raise HTTPException(status_code=400, detail="Booking đã bị hủy, không thể dời lịch")
+
+    conflict = db.execute(
+        select(Booking).where(
+            Booking.court_id   == booking.court_id,
+            Booking.id         != booking.id,
+            Booking.status     != "cancelled",
+            Booking.start_time <  req.new_end_time,
+            Booking.end_time   >  req.new_start_time,
+        )
+    ).first()
+    if conflict:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Khung giờ mới đã bị đặt")
+
     hours = (req.new_end_time - req.new_start_time).total_seconds() / 3600
-
-    booking.status = "cancelled"
-    db.flush()
-
     booking.start_time  = req.new_start_time
     booking.end_time    = req.new_end_time
     booking.total_price = float(court.price_per_hour) * hours
-    booking.status      = "confirmed"
-    try:
-        db.commit()
-    except IntegrityError:
-        db.rollback()
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Khung giờ mới đã bị đặt")
+    db.commit()
     db.refresh(booking)
     return _to_response(booking, court.name)

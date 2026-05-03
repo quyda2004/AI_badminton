@@ -1,0 +1,4 @@
+# Cài toàn bộ deps cho dev local (gộp backend + ai_service + tools)
+-r backend/requirements.txt
+-r ai_service/requirements.txt
+pytest==9.0.3

@@ -3,11 +3,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
 import sys, os
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
-from models import Base, User, Court, Booking, Payment
-from config import DATABASE_URL
-from security import hash_password
+from backend.models import Base, User, Court, Booking, Payment
+from backend.config import DATABASE_URL
+from backend.security import hash_password
 
 
 def seed_users(session: Session) -> list[User]:

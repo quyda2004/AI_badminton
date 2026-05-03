@@ -1,10 +1,10 @@
 import sys, os
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 from sqlalchemy import create_engine
-from models import Base
-from config import DATABASE_URL
-from scripts.seed import seed_users, seed_courts, seed_bookings, seed_payments
+from backend.models import Base
+from backend.config import DATABASE_URL
+from backend.scripts.seed import seed_users, seed_courts, seed_bookings, seed_payments
 from sqlalchemy.orm import Session
 
 engine = create_engine(DATABASE_URL, echo=False)
