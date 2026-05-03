@@ -84,3 +84,8 @@ npm-debug.log*
 # Coverage
 .coverage
 htmlcov/
+
+# Internal docs (không push lên repo)
+CLAUDE.md
+api_schema_map.md
+models_map.md

@@ -1,0 +1,9 @@
+# Tất cả file text dùng LF (chuẩn Linux/Docker)
+* text=auto eol=lf
+
+# File binary — không convert
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.pdf binary
+*.ico binary
